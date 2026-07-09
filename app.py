@@ -1,4 +1,4 @@
-python
+
 import streamlit as st
 
 st.set_page_config(page_title="專業趣味心理測試", page_icon="🔮")
