@@ -118,9 +118,11 @@ ITEMS_PER_PAGE = 18
 total_pages = 5
 
 # 【修正核心】如果頁面是 99，代表要顯示結果，不顯示題目和進度條
-if current_page == 99:
+# 【請替換 app.py 的後半段結果頁邏輯，從 if st.session_state.page == 99: 開始】
+
+if st.session_state.page == 99:
     st.balloons()
-    st.success("🎉 恭喜你完成了 90 題深度性格測驗！以下是你的性格剖析報告：")
+    st.success("🎉 90題深度性格測驗完成！以下為您的專屬深度性格剖析報告：")
     
     scores = {"O": 0, "C": 0, "E": 0, "A": 0, "N": 0}
     
@@ -135,27 +137,75 @@ if current_page == 99:
     for dim in scores:
         scores[dim] = round((scores[dim] - 18) / 72 * 100)
 
-    st.markdown("### 📊 五大人格特質百分比")
+    # --- 綜合性格評判邏輯 ---
+    high_o = scores["O"] >= 50
+    high_c = scores["C"] >= 50
+    high_e = scores["E"] >= 50
+    high_a = scores["A"] >= 50
+    high_n = scores["N"] >= 50
+
+    # 初始化報告文本
+    personality_title = ""
+    description = ""
+    strengths = []
+    weaknesses = []
+
+    # 根據高低分數組合判定 8 種主要人格原型
+    if high_e and high_c and high_o:
+        personality_title = "👑 開創型領袖 (The Visionary Leader)"
+        description = "你充滿活力與遠見，既有天馬行空的創新想法，又能腳踏實地地將計畫執行到位。你在團隊中通常扮演引領方向的角色，擅長激勵他人並帶領團隊開疆闢土。"
+        strengths = ["具備強大的目標導向與超強執行力", "樂於接受挑戰，創新思維活躍", "社交能力極佳，能輕鬆發揮影響力", "善於統籌大局與分配資源"]
+        weaknesses = ["有時對下屬或旁人要求過高，顯得有些強勢", "當進度不如預期時，容易產生焦慮與不耐煩", "可能因過於追求完美而給自己帶來極大壓力", "容易同時開太多戰線，導致體力透支"]
+        
+    elif high_e and high_a and not high_c:
+        personality_title = "🌟 陽光社交家 (The Enthusiastic Connector)"
+        description = "你是人群中的開心果與黏著劑！你極具親和力，熱愛與人互動，天生自帶吸引大眾的魅力。你更看重人與人之間的和諧情感，而非冰冷的死板規矩。"
+        strengths = ["同理心極強，擅長療癒與安慰他人", "溝通能力絕佳，能快速融入新環境並建立人脈", "樂觀開朗，能為團隊帶來積極正向的氛圍", "處事靈活彈性，適應能力強"]
+        weaknesses = ["做事較缺乏條理與規劃，容易丟三落四或拖延", "常常因為不好意思拒絕他人而承擔過多不屬於自己的責任", "容易受到他人情緒或負面評價的影響", "在處理繁瑣的數據與行政細節時容易分心"]
+
+    elif not high_e and high_c and not high_o:
+        personality_title = "🛡️ 沉穩守護者 (The Reliable Anchor)"
+        description = "你是一個極其踏實、低調且無比靠譜的人。你不喜歡流於表面或花哨的事物，更傾向於在幕後默默耕耘。社會與團隊因為有你的自律和嚴謹，才能穩定運作。"
+        strengths = ["做事極其細心、負責任，承諾的事一定做到", "生活與工作井然有序，抗干擾能力強", "尊重傳統與既定規範，處事沉穩讓人安心", "擅長處理繁瑣、需要耐心的長線任務"]
+        weaknesses = ["思維相對保守，面對突如其來的重大變革容易感到抗拒", "不擅長表達內心真實情感，容易把壓力藏心底", "過度聚焦於細節，有時會陷入「見樹不見林」的盲點", "在社交場合顯得較為被動或嚴肅"]
+
+    elif not high_e and high_o and high_a:
+        personality_title = "🔮 靈魂思想家 (The Idealistic Thinker)"
+        description = "你擁有深邃的內心世界與豐富的想像力。比起喧囂的社交場合，你更喜歡安靜地探索藝術、哲學或內心精神世界。你對人性的敏銳洞察讓你往往充滿智慧。"
+        strengths = ["具有深度思考能力與獨特的審美與創造力", "高度精神自省，不容易盲從社會主流價值觀", "對朋友極其忠誠，心思細膩體貼", "擅長文字創作、策略規劃或深度諮詢"]
+        weaknesses = ["容易陷入想得多、做得少的「思想巨人，行動矮子」困境", "過度敏感，容易被周遭的負面能量或衝突所灼傷", "有時顯得過於孤僻或不食人間煙火", "面對嚴酷、現實的激烈競爭時容易退縮"]
+        
+    elif high_n and not high_e:
+        personality_title = "🔍 敏銳觀察家 (The Sensitive Analyst)"
+        description = "你是一個情感極其細膩、警覺性很高的觀察者。你對環境的微小變化和潛在風險有著天生的雷達，這讓你能夠在危機發生前就做好最壞的打算與防範。"
+        strengths = ["危機意識極高，能提早發現計畫中的漏洞", "情感細膩，對文藝、心理學有極高的天賦", "做事謹慎，很少因為衝動而犯下大錯", "注重細節，交出來的成果通常非常嚴謹"]
+        weaknesses = ["容易過度焦慮、內耗，常為還沒發生的事情失眠", "自信心較不足，遇到挫折容易陷入自我懷疑", "在壓力環境下決策容易變得猶豫不決", "需要較長的獨處時間來修復受傷的情緒"]
+        
+    else:
+        personality_title = "⚖️ 務實平衡者 (The Pragmatic Realist)"
+        description = "你是一個非常均衡、務實的人。你不會極端地偏向某個特質，而是能根據當下的現實情況靈活調整自己。你既能參與社交，也能享受獨處；既仰望星空，也腳踏實地。"
+        strengths = ["情緒狀態相對穩定，處事客觀冷靜", "沒有明顯的性格短板，能夠勝任多種角色", "既講求效率，也能兼顧人際關係的平衡", "務實理性，不輕易被天馬行空的幻想誤導"]
+        weaknesses = ["有時在團隊中顯得特色不夠鮮明", "在需要極致創新或極端激進的環境中可能顯得保守", "傾向於打安全牌，可能會因此錯失一些高風險高回報的機會", "容易流於安穩的舒適圈而不願輕易打破現狀"]
+
+    # --- 精美排版輸出結果 ---
+    st.markdown(f"## 🏆 您的綜合性格原型：{personality_title}")
+    st.markdown("---")
     
-    st.write(f"**🟢 外向性 (Extraversion)：{scores['E']}%**")
-    st.progress(scores['E'] / 100)
-    st.caption("代表你對外部世界的投入程度、社交意願與能量來源。得分高者熱情、善社交；低者內斂、享受獨處。")
+    st.markdown("### 📝 性格特寫描述")
+    st.info(description)
     
-    st.write(f"**🔵 親和性 (Agreeableness)：{scores['A']}%**")
-    st.progress(scores['A'] / 100)
-    st.caption("代表你對他人的信任、同理心與合作意願。得分高者體貼、樂於助人；低者具競爭心、現實直率。")
-
-    st.write(f"**🟤 謹慎度 (Conscientiousness)：{scores['C']}%**")
-    st.progress(scores['C'] / 100)
-    st.caption("代表你的自律程度、組織能力與追求成就的毅力。得分高者有計畫、負責任；低者隨性、靈活。")
-
-    st.write(f"**🔴 神經質 (Neuroticism)：{scores['N']}%**")
-    st.progress(scores['N'] / 100)
-    st.caption("代表你對壓力的敏感度與情緒穩定性。得分高者情感細膩、易焦慮；低者沉穩、抗壓性強。")
-
-    st.write(f"**🟣 開放性 (Openness to Experience)：{scores['O']}%**")
-    st.progress(scores['O'] / 100)
-    st.caption("代表你對新事物、藝術與抽象思考的開放態度。得分高者具創造力、好奇心強；低者務實、尊重傳統。")
+    # 左右分欄顯示優劣勢
+    col_left, col_right = st.columns(2)
+    
+    with col_left:
+        st.markdown("### 💪 核心核心優勢")
+        for s in strengths:
+            st.write(f"✅ {s}")
+            
+    with col_right:
+        st.markdown("### ⚠️ 潛在盲點與劣勢")
+        for w in weaknesses:
+            st.write(f"❌ {w}")
 
     st.markdown("---")
     if st.button("🔄 重新測試"):
@@ -164,7 +214,7 @@ if current_page == 99:
         st.rerun()
 
 else:
-    # 正常顯示題目分頁
+    # 正常顯示題目分頁（這段保持跟之前一樣即可，此處為結構完整性保留）
     st.title("🧬 90題深度大五人格特質測試")
     st.write("本測試基於心理學著名的大五人格理論（Big Five）。請根據真實感受填寫。")
     st.markdown("---")
@@ -180,12 +230,7 @@ else:
         saved_ans = st.session_state.answers.get(q_key, None)
         default_idx = options.index(saved_ans) if saved_ans in options else None
         
-        st.session_state.answers[q_key] = st.radio(
-            q["text"], 
-            options, 
-            index=default_idx, 
-            key=f"radio_{i}"
-        )
+        st.session_state.answers[q_key] = st.radio(q["text"], options, index=default_idx, key=f"radio_{i}")
         st.markdown("---")
 
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -194,7 +239,6 @@ else:
             if st.button("⬅️ 上一頁"):
                 st.session_state.page -= 1
                 st.rerun()
-
     with col3:
         if current_page < total_pages - 1:
             if st.button("下一頁 ➡️"):
