@@ -2,12 +2,7 @@ import streamlit as st
 
 st.set_page_config(page_title="90題深度性格特質測試", page_icon="🧬", layout="centered")
 
-st.title("🧬 90題深度大五人格特質測試")
-st.write("本測試基於心理學著名的大五人格理論（Big Five），從五個核心維度深度剖析你的性格。請根據你的真實感受填寫，預計耗時 8-10 分鐘。")
-st.markdown("---")
-
 # 90題資料庫 (維度: O=開放性, C=謹慎度, E=外向性, A=親和性, N=神經質)
-# 符號 + 代表正向題，- 代表反向題
 questions = [
     # --- 外向性 (E) ---
     {"text": "1. 我在聚會中總是能輕鬆主動與陌生人攀談。", "dim": "E", "sign": 1},
@@ -110,108 +105,36 @@ questions = [
     {"text": "90. 我不喜歡打破常規的變革，安穩現狀最好。", "dim": "O", "sign": -1}
 ]
 
-# 選項與分數映射
 options = ["1 - 非常不同意", "2 - 不同意", "3 - 沒意見", "4 - 同意", "5 - 非常同意"]
 score_map = {"1 - 非常不同意": 1, "2 - 不同意": 2, "3 - 沒意見": 3, "4 - 同意": 4, "5 - 非常同意": 5}
 
-# 使用 Streamlit 的 session_state 來記錄分頁狀態與使用者回答
 if "page" not in st.session_state:
     st.session_state.page = 0
 if "answers" not in st.session_state:
     st.session_state.answers = {}
 
-# 計算分頁資訊 (共 90 題，一頁 18 題，共 5 頁)
+current_page = st.session_state.page
 ITEMS_PER_PAGE = 18
 total_pages = 5
-current_page = st.session_state.page
-start_idx = current_page * ITEMS_PER_PAGE
-end_idx = start_idx + ITEMS_PER_PAGE
 
-st.subheader(f"📑 測試進行中：第 {current_page + 1} / {total_pages} 頁")
-st.progress((current_page + 1) / total_pages)
-
-# 顯示當前分頁的 18 個題目
-for i in range(start_idx, end_idx):
-    q = questions[i]
-    q_key = f"q_{i}"
-    # 讀取已保留的答案
-    saved_ans = st.session_state.answers.get(q_key, None)
-    default_idx = options.index(saved_ans) if saved_ans in options else None
-    
-    st.session_state.answers[q_key] = st.radio(
-        q["text"], 
-        options, 
-        index=default_idx, 
-        key=f"radio_{i}"
-    )
-    st.markdown("---")
-
-# 控制按鈕區域
-col1, col2, col3 = st.columns([1, 2, 1])
-
-with col1:
-    if current_page > 0:
-        if st.button("⬅️ 上一頁"):
-            st.session_state.page -= 1
-            st.rerun()
-
-with col3:
-    if current_page < total_pages - 1:
-        if st.button("下一頁 ➡️"):
-            # 檢查這一頁是不是都有填
-            page_complete = True
-            for i in range(start_idx, end_idx):
-                if st.session_state.answers.get(f"q_{i}") is None:
-                    page_complete = False
-            
-            if page_complete:
-                st.session_state.page += 1
-                st.rerun()
-            else:
-                st.error("🚨 本頁還有題目沒寫完喔！")
-    else:
-        # 最後一頁顯示送出按鈕
-        if st.button("📊 送出並查看深度報告"):
-            # 檢查最後一頁是否填寫完畢
-            all_complete = True
-            for i in range(90):
-                if st.session_state.answers.get(f"q_{i}") is None:
-                    all_complete = False
-            
-            if all_complete:
-                st.session_state.page = 99  # 進入結果頁
-                st.rerun()
-            else:
-                st.error("🚨 還有題目被漏掉了，請檢查前面各頁面！")
-
-# 顯示結果頁
-if st.session_state.page == 99:
+# 【修正核心】如果頁面是 99，代表要顯示結果，不顯示題目和進度條
+if current_page == 99:
     st.balloons()
     st.success("🎉 恭喜你完成了 90 題深度性格測驗！以下是你的性格剖析報告：")
     
-    # 初始分數字典 (總分, 題數)
     scores = {"O": 0, "C": 0, "E": 0, "A": 0, "N": 0}
     
-    # 計算分數
     for i in range(90):
         q = questions[i]
         ans_text = st.session_state.answers.get(f"q_{i}")
         raw_score = score_map[ans_text]
-        
-        # 如果是反向題，分數要倒過來計算 (5分變1分，4分變2分...)
-        if q["sign"] == -1:
-            final_score = 6 - raw_score
-        else:
-            final_score = raw_score
-            
+        final_score = (6 - raw_score) if q["sign"] == -1 else raw_score
         scores[q["dim"]] += final_score
 
-    # 轉化為百分比（每維度 18 題，最高 90 分，最低 18 分）
-    # 換算公式: (實際得分 - 18) / (90 - 18) * 100
+    # 換算百分比
     for dim in scores:
         scores[dim] = round((scores[dim] - 18) / 72 * 100)
 
-    # 呈現結果
     st.markdown("### 📊 五大人格特質百分比")
     
     st.write(f"**🟢 外向性 (Extraversion)：{scores['E']}%**")
@@ -239,3 +162,59 @@ if st.session_state.page == 99:
         st.session_state.page = 0
         st.session_state.answers = {}
         st.rerun()
+
+else:
+    # 正常顯示題目分頁
+    st.title("🧬 90題深度大五人格特質測試")
+    st.write("本測試基於心理學著名的大五人格理論（Big Five）。請根據真實感受填寫。")
+    st.markdown("---")
+    st.subheader(f"📑 測試進行中：第 {current_page + 1} / {total_pages} 頁")
+    st.progress((current_page + 1) / total_pages)
+
+    start_idx = current_page * ITEMS_PER_PAGE
+    end_idx = start_idx + ITEMS_PER_PAGE
+
+    for i in range(start_idx, end_idx):
+        q = questions[i]
+        q_key = f"q_{i}"
+        saved_ans = st.session_state.answers.get(q_key, None)
+        default_idx = options.index(saved_ans) if saved_ans in options else None
+        
+        st.session_state.answers[q_key] = st.radio(
+            q["text"], 
+            options, 
+            index=default_idx, 
+            key=f"radio_{i}"
+        )
+        st.markdown("---")
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col1:
+        if current_page > 0:
+            if st.button("⬅️ 上一頁"):
+                st.session_state.page -= 1
+                st.rerun()
+
+    with col3:
+        if current_page < total_pages - 1:
+            if st.button("下一頁 ➡️"):
+                page_complete = True
+                for i in range(start_idx, end_idx):
+                    if st.session_state.answers.get(f"q_{i}") is None:
+                        page_complete = False
+                if page_complete:
+                    st.session_state.page += 1
+                    st.rerun()
+                else:
+                    st.error("🚨 本頁還有題目沒寫完喔！")
+        else:
+            if st.button("📊 送出並查看深度報告"):
+                all_complete = True
+                for i in range(90):
+                    if st.session_state.answers.get(f"q_{i}") is None:
+                        all_complete = False
+                if all_complete:
+                    st.session_state.page = 99
+                    st.rerun()
+                else:
+                    st.error("🚨 還有題目被漏掉了，請檢查前面各頁面！")
