@@ -1,77 +1,97 @@
 <!DOCTYPE html>
-<html lang="zh-CH">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026隱藏天賦潛能測試</title>
+    <title>核心特质性格快速测试</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f9; color: #333; padding: 20px; text-align: center; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 40px auto; }
-        button { background: #6c5ce7; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 10px; width: 80%; }
-        button:hover { background: #5b4cc4; }
+        body { font-family: -apple-system, sans-serif; background: #f4f4f9; color: #333; padding: 15px; text-align: center; }
+        .card { background: white; padding: 25px 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 40px auto; }
+        .progress { color: #6c5ce7; font-weight: bold; margin-bottom: 20px; font-size: 14px; }
+        .question-text { font-size: 18px; line-height: 1.6; margin-bottom: 25px; min-height: 60px; text-align: left; font-weight: 500; color: #1e1e24; }
+        .btn-option { background: #f0edf9; color: #4a3f9e; border: 1px solid #dcd6f7; padding: 14px; border-radius: 8px; cursor: pointer; font-size: 15px; margin: 8px 0; width: 100%; transition: 0.2s; text-align: left; padding-left: 20px; }
+        .btn-option:hover { background: #6c5ce7; color: white; border-color: #6c5ce7; }
+        button.start-btn { background: #6c5ce7; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; font-weight: bold; }
+        button.start-btn:hover { background: #5b4cc4; }
         .hidden { display: none; }
-        #result { font-weight: bold; font-size: 18px; line-height: 1.6; color: #2d3436; }
+        .info-box { background: #f3f0ff; border-left: 4px solid #6c5ce7; padding: 15px; border-radius: 4px; text-align: left; margin: 15px 0; line-height: 1.6; font-size: 15px; }
+        .cta-box { margin-top: 25px; background: #fff9db; padding: 15px; border-radius: 8px; font-size: 14px; color: #856404; border: 1px solid #ffeeba; text-align: left; }
+        .next-btn { background: #ff4757; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-size: 15px; width: 100%; font-weight: bold; margin-top: 10px; }
+        .next-btn:hover { background: #e04050; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <!-- 歡迎界面 -->
+    <!-- 欢迎界面 -->
     <div id="start-page">
-        <h2>🔮 隱藏天賦潛能測試</h2>
-        <p>你這輩子，其實帶了個隱藏天賦出生。憑直覺回答5道題，解鎖你潛意識裡的終極潛能與2026搞錢方向。</p>
-        <button onclick="startTest()">開始測試</button>
+        <h2>🧬 核心特质性格快速精简测试</h2>
+        <p style="color:#666; line-height:1.6; text-align: left; font-size: 14px;">只需 5 题，快速解密你潜意识中的核心性格底色。请根据第一直觉进行选择。</p>
+        <button class="start-btn" onclick="startTest()">开始快速测评</button>
     </div>
 
-    <!-- 題目界面 -->
-    <div id="question-page" class="hidden">
-        <h3 id="question-text">題目加載中...</h3>
-        <div id="options-container"></div>
+    <!-- 测验进行界面 -->
+    <div id="quiz-page" class="hidden">
+        <div class="progress">📑 测试进行中：第 <span id="current-idx">1</span> / 5 题</div>
+        <div class="question-text" id="q-text">加载中...</div>
+        <button class="btn-option" onclick="handleAnswer(5)">5 - 非常同意</button>
+        <button class="btn-option" onclick="handleAnswer(4)">4 - 同意</button>
+        <button class="btn-option" onclick="handleAnswer(3)">3 - 没意见</button>
+        <button class="btn-option" onclick="handleAnswer(2)">2 - 不同意</button>
+        <button class="btn-option" onclick="handleAnswer(1)">1 - 非常不同意</button>
     </div>
 
-    <!-- 結果界面 -->
+    <!-- 结果导向界面 -->
     <div id="result-page" class="hidden">
-        <h2>✨ 測試結果</h2>
-        <div id="result"></div>
-        <p style="margin-top:30px; color:#666; font-size:14px;">想要獲取精準的【3000字個人搞錢方向深度報告】？<br><b>請返回小紅書私信我「領取報告」！</b></p>
+        <h2 style="color: #2f3542;">🎉 快速性格检测完成！</h2>
+        <p style="color: #6c5ce7; font-weight: bold;">初步诊断你的潜意识核心标签为：</p>
+        
+        <div class="info-box">
+            <b style="font-size: 17px; color: #4a3f9e;" id="result-title"></b>
+            <p id="result-desc" style="margin-top: 8px; margin-bottom: 0; color: #444;"></p>
+        </div>
+
+        <div class="cta-box">
+            <b>🔥 精简版意犹未尽？解锁完整90题深度大五人格报告！</b><br style="margin-bottom: 5px;">
+            点击下方按钮，立即前往【90题深度精准测评版】，全面解锁核心优势、潜在盲点以及2026搞钱方向！
+            <button class="next-btn" onclick="goToDeepTest()">🎯 猛戳这里！挑战90题深度测验</button>
+        </div>
     </div>
 </div>
 
 <script>
     const questions = [
-        { q: "1. 走在森林裡，迷路時你直覺會選擇哪條路？", o: [{t:"長滿鮮花的小徑",v:"A"}, {t:"青磚鋪成的古道",v:"B"}, {t:"陽光斑駁的林蔭道",v:"C"}, {t:"怪石嶙峋的近路",v:"D"}] },
-        { q: "2. 如果獲得一筆意外之財，你第一反應會用來做什麼？", o: [{t:"買直覺想買很久的文創/禮物",v:"A"}, {t:"規劃投資或存起來",v:"B"}, {t:"請朋友大吃一頓分享快樂",v:"C"}, {t:"解決眼前的某個棘手難題",v:"D"}] },
-        { q: "3. 看到朋友情緒低落，你平時的本能反應是？", o: [{t:"安靜陪伴，默默感知對方的痛苦",v:"A"}, {t:"幫他理智分析原因並找解決辦法",v:"B"}, {t:"講笑話或帶他出去玩轉移注意力",v:"C"}, {t:"告訴他別慌，天塌下來有辦法解決",v:"D"}] },
-        { q: "4. 如果要你策劃一場聚會，你最不願意負責哪部分？", o: [{t:"安撫和照顧每個人當晚的情緒",v:"A"}, {t:"計算預算、行程記帳等繁瑣細節",v:"B"}, {t:"上台主持、帶動全場氣氛",v:"C"}, {t:"處理現場突發的停電或少定座位等意外",v:"D"}] },
-        { q: "5. 想像你是一個探險家，你覺得哪種寶藏最吸引你？", o: [{t:"一本記錄古老失落文明的神秘日記",v:"A"}, {t:"一座運行精密、還能使用的古代機關城堡",v:"B"}, {t:"一顆傳說能給持有者帶來巨大名聲的寶石",v:"C"}, {t:"一具古代王者用來反敗為勝的絕密武器",v:"D"}] }
+        {"text": "1. 在社交聚会中，我通常能轻松主动地与陌生人攀谈。", "type": "A"}, // 外向
+        {"text": "2. 遇到突发紧急事件时，我能保持冷静并理清头绪，而不是慌乱。", "type": "B"}, // 沉稳
+        {"text": "3. 我是一个凡事都会提前做好规划，并严格按时完成的人。", "type": "C"}, // 严谨
+        {"text": "4. 我常常有一些天马行空、与众不同的新奇创意和点子。", "type": "D"}, // 创新
+        {"text": "5. 我非常容易设身处地地为他人着想，甚至有时为了和谐而妥协。", "type": "E"} // 亲和
     ];
 
     let currentQ = 0;
-    let scores = {A:0, B:0, C:0, D:0};
+    let maxScore = -1;
+    let topType = "A";
 
     function startTest() {
         document.getElementById('start-page').classList.add('hidden');
-        document.getElementById('question-page').classList.remove('hidden');
+        document.getElementById('quiz-page').classList.remove('hidden');
         showQuestion();
     }
 
     function showQuestion() {
-        let q = questions[currentQ];
-        document.getElementById('question-text').innerText = q.q;
-        let container = document.getElementById('options-container');
-        container.innerHTML = '';
-        q.o.forEach(opt => {
-            let btn = document.createElement('button');
-            btn.innerText = opt.t;
-            btn.onclick = () => nextQuestion(opt.v);
-            container.appendChild(btn);
-        });
+        document.getElementById('current-idx').innerText = currentQ + 1;
+        document.getElementById('q-text').innerText = questions[currentQ].text;
+        window.scrollTo(0, 0);
     }
 
-    function nextQuestion(val) {
-        scores[val]++;
+    function handleAnswer(score) {
+        if (score > maxScore) {
+            maxScore = score;
+            topType = questions[currentQ].type;
+        }
+
         currentQ++;
-        if(currentQ < questions.length) {
+        if (currentQ < questions.length) {
             showQuestion();
         } else {
             showResult();
@@ -79,18 +99,42 @@
     }
 
     function showResult() {
-        document.getElementById('question-page').classList.add('hidden');
+        document.getElementById('quiz-page').classList.add('hidden');
         document.getElementById('result-page').classList.remove('hidden');
-        
-        let maxKey = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
-        let resultText = "";
-        
-        if(maxKey === 'A') resultText = "【高階 直覺感知者】<br>你擁有極強的同理心和洞察力，別人的微表情你一眼就能看穿。適合心理、諮詢、文創、創意策劃領域！";
-        if(maxKey === 'B') resultText = "【隱藏的 系統架構師】<br>你看似不愛管事，但擅長在混亂中理出邏輯。你的執行力極強，適合獨立項目主理人、創業或管理！";
-        if(maxKey === 'C') resultText = "【天然的 能量擴音器】<br>你有一種天然的感染力和說服力。你天生適合做自媒體、買手帶貨、演講，靠分享和說話發財！";
-        if(maxKey === 'D') resultText = "【高智商 危機解碼器】<br>遇到突發狀況越緊急你大腦越冷靜，逆境破局力一流。適合談判、操盤手或高難度自由職業！";
-        
-        document.getElementById('result').innerHTML = resultText;
+        window.scrollTo(0, 0);
+
+        let resTitle = "";
+        let resDesc = "";
+
+        switch(topType) {
+            case "A":
+                resTitle = "✨ 耀眼发光体 (High Energy Connector)";
+                resDesc = "你天生自带磁场，在人群中极具存在感。你擅长通过人际互动获取能量，沟通与表现力是你的天然护城河。";
+                break;
+            case "B":
+                resTitle = "🏔️ 定海神针 (The Calm Anchor)";
+                resDesc = "你拥有极强的核心稳定度，情绪内核强大。在外界风吹草动或面临压力时，你往往是团队中最让人安心的定盘星。";
+                break;
+            case "C":
+                resTitle = "🎯 满分导航仪 (The Precision Planner)";
+                resDesc = "你做事自律且极具条理，讨厌失控感。高度的执行力与对细节的敏锐度，让你承诺过的事极少出错。";
+                break;
+            case "D":
+                resTitle = "🔮 灵魂冲浪者 (The Visionary Creative)";
+                resDesc = "你拥有丰富的精神世界与极高的包容度，抗拒枯燥与教条。天马行空的创新思维常能帮你开辟独特的路径。";
+                break;
+            case "E":
+                resTitle = "🩹 高能疗愈大师 (The Empathetic Healer)";
+                resDesc = "你拥有极高的情商与同理心雷达，能精准捕捉旁人的情绪需求。温暖、利atis是你人际关系中最迷人的标签。";
+                break;
+        }
+
+        document.getElementById('result-title').innerText = resTitle;
+        document.getElementById('result-desc').innerText = resDesc;
+    }
+
+    function goToDeepTest() {
+        window.location.href = "test90.html";
     }
 </script>
 </body>
