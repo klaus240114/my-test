@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CH">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>90題深度性格特質測試</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #f4f4f9; color: #333; padding: 15px; text-align: center; }
+        .card { background: white; padding: 25px 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 550px; margin: 30px auto; }
+        .progress { color: #6c5ce7; font-weight: bold; margin-bottom: 20px; font-size: 15px; }
+        .question-text { font-size: 18px; line-height: 1.6; margin-bottom: 25px; min-height: 70px; text-align: left; font-weight: 500; color: #1e1e24; }
+        .btn-option { background: #f0edf9; color: #4a3f9e; border: 1px solid #dcd6f7; padding: 14px; border-radius: 8px; cursor: pointer; font-size: 15px; margin: 8px 0; width: 100%; transition: 0.2s; text-align: left; padding-left: 20px; }
+        .btn-option:hover { background: #6c5ce7; color: white; border-color: #6c5ce7; }
+        button.start-btn { background: #6c5ce7; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; font-weight: bold; }
+        button.start-btn:hover { background: #5b4cc4; }
+        .hidden { display: none; }
+        #result-text { text-align: left; line-height: 1.8; font-size: 16px; }
+        .info-box { background: #eef2ff; border-left: 4px solid #4f46e5; padding: 15px; border-radius: 4px; text-align: left; margin: 15px 0; line-height: 1.6; }
+        .grid-box { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .col { background: #fafafa; padding: 15px; border-radius: 8px; text-align: left; border: 1px solid #eee; }
+        .col h3 { margin-top: 0; color: #222; }
+        .cta-box { margin-top: 30px; background: #fff9db; padding: 18px; border-radius: 8px; font-size: 14px; color: #856404; border: 1px solid #ffeeba; text-align: left; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <!-- 歡迎介面 -->
+    <div id="start-page">
+        <h2>🧬 90題深度大五人格特質測試</h2>
+        <p style="color:#666; line-height:1.6; text-align: left; font-size: 15px;">本測試基於心理學著名的大五人格理論（Big Five）。全面解鎖你的外向性(E)、神經質(N)、親和性(A)、謹慎度(C)與開放性(O)維度。請根據真實感受填寫。</p>
+        <button class="start-btn" onclick="startTest()">開始深度測評</button>
+    </div>
+
+    <!-- 測驗進行介面 -->
+    <div id="quiz-page" class="hidden">
+        <div class="progress">📑 測試進行中：第 <span id="current-idx">1</span> / 90 題</div>
+        <div class="question-text" id="q-text">加載中...</div>
+        <button class="btn-option" onclick="handleAnswer(5)">5 - 非常同意</button>
+        <button class="btn-option" onclick="handleAnswer(4)">4 - 同意</button>
+        <button class="btn-option" onclick="handleAnswer(3)">3 - 沒意見</button>
+        <button class="btn-option" onclick="handleAnswer(2)">2 - 不同意</button>
+        <button class="btn-option" onclick="handleAnswer(1)">1 - 非常不同意</button>
+    </div>
+
+    <!-- 結果導向介面 -->
+    <div id="result-page" class="hidden">
+        <h2 style="color: #2f3542;">🎉 90題深度性格測驗完成！</h2>
+        <p style="color: #2ed573; font-weight: bold; font-size: 16px;">以下為您的專屬深度性格剖析報告：</p>
+        <hr style="border: 0; border-top: 1px solid #eee;">
+        
+        <div id="result-content">
+            <h3 id="personality-title" style="color: #4f46e5; font-size: 20px; margin-bottom: 5px;"></h3>
+            <div class="info-box" id="description-text"></div>
+            
+            <div class="grid-box">
+                <div class="col">
+                    <h3 style="color: #2ed573;">💪 核心優勢</h3>
+                    <div id="strengths-text"></div>
+                </div>
+                <div class="col">
+                    <h3 style="color: #ff4757;">⚠️ 潛在盲點與劣勢</h3>
+                    <div id="weaknesses-text"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-box">
+            <b>💡 想獲取專屬【3000字個人天賦與2026搞錢方向深度報告】？</b><br style="margin-bottom: 5px;">
+            請立即返回小紅書私信我，發送關鍵字：<b>「領取報告」</b>，系統將人工為您發送完整版！
+        </div>
+    </div>
+</div>
+
+<script>
+    // 90題完整資料庫
+    const questions = [
+        // --- 外向性 (E) ---
+        {"text": "1. 我在聚會中總是能輕鬆主動與陌生人攀談。", "dim": "E", "sign": 1},
+        {"text": "2. 我喜歡成為大家注目的焦點。", "dim": "E", "sign": 1},
+        {"text": "3. 我通常充滿活力，說話速度較快。", "dim": "E", "sign": 1},
+        {"text": "4. 我喜歡熱鬧、刺激的社交場合。", "dim": "E", "sign": 1},
+        {"text": "5. 我擅長帶動團體氣氛。", "dim": "E", "sign": 1},
+        {"text": "6. 我做決定非常果斷且迅速。", "dim": "E", "sign": 1},
+        {"text": "7. 我容易向他人展現熱情。", "dim": "E", "sign": 1},
+        {"text": "8. 我生活節奏很快，不喜歡慢吞吞。", "dim": "E", "sign": 1},
+        {"text": "9. 我常主動發起團體活動。", "dim": "E", "sign": 1},
+        {"text": "10. 我在人群中感到孤立時（反向），會覺得很不舒服。", "dim": "E", "sign": -1},
+        {"text": "11. 我傾向於保持低調，不愛出風頭。", "dim": "E", "sign": -1},
+        {"text": "12. 獨處能讓我更有效地恢復精力。", "dim": "E", "sign": -1},
+        {"text": "13. 在團體討論中，我通常聽多過於說。", "dim": "E", "sign": -1},
+        {"text": "14. 我不喜歡太嘈雜的娛樂場所。", "dim": "E", "sign": -1},
+        {"text": "15. 我是一個比較內斂、不容易激動的人。", "dim": "E", "sign": -1},
+        {"text": "16. 面對陌生環境，我通常採取觀望態度。", "dim": "E", "sign": -1},
+        {"text": "17. 我不喜歡向外人透露太多個人生活細節。", "dim": "E", "sign": -1},
+        {"text": "18. 我享受一個人安靜做事情的時間。", "dim": "E", "sign": -1},
+
+        // --- 親和性 (A) ---
+        {"text": "19. 我容易信任他人，並相信人性本善。", "dim": "A", "sign": 1},
+        {"text": "20. 我樂於幫助他人，即使這需要犧牲我的時間。", "dim": "A", "sign": 1},
+        {"text": "21. 我擅長設身處地為他人著想（同理心）。", "dim": "A", "sign": 1},
+        {"text": "22. 我對身邊的人非常體貼與溫柔。", "dim": "A", "sign": 1},
+        {"text": "23. 為了保持和諧，我願意與他人妥協。", "dim": "A", "sign": 1},
+        {"text": "24. 我相信誠實是人際關係中最重要的事。", "dim": "A", "sign": 1},
+        {"text": "25. 我對別人的不幸遭遇容易感到同情。", "dim": "A", "sign": 1},
+        {"text": "26. 我不喜歡和人爭吵，盡量避免衝突。", "dim": "A", "sign": 1},
+        {"text": "27. 我對他人抱持著寬容的態度。", "dim": "A", "sign": 1},
+        {"text": "28. 為了個人利益，有時需要利用別人。", "dim": "A", "sign": -1},
+        {"text": "29. 我覺得很多人都在背後算計別人。", "dim": "A", "sign": -1},
+        {"text": "30. 我說話比較直接，不太在乎是否會傷到別人尊嚴。", "dim": "A", "sign": -1},
+        {"text": "31. 我認為同情心有時候會誤事。", "dim": "A", "sign": -1},
+        {"text": "32. 如果別人對我不客氣，我也會狠狠反擊。", "dim": "A", "sign": -1},
+        {"text": "33. 我不輕易相信別人的口頭承諾。", "dim": "A", "sign": -1},
+        {"text": "34. 我認為在競爭中手段強硬是必須的。", "dim": "A", "sign": -1},
+        {"text": "35. 我很少對陌生人的困難產生真正的關心。", "dim": "A", "sign": -1},
+        {"text": "36. 我覺得每個人都應該先顧好自己。", "dim": "A", "sign": -1},
+
+        // --- 謹慎度 (C) ---
+        {"text": "37. 我做事總是會提前做好詳細的規劃。", "dim": "C", "sign": 1},
+        {"text": "38. 我對自己的工作或學業要求極高。", "dim": "C", "sign": 1},
+        {"text": "39. 我隨時保持物品整齊與環境乾淨。", "dim": "C", "sign": 1},
+        {"text": "40. 承諾過的事情，我一定會想辦法按時完成。", "dim": "C", "sign": 1},
+        {"text": "41. 我非常注重細節，很少粗心大意。", "dim": "C", "sign": 1},
+        {"text": "42. 面對困難，我有極強的毅力堅持到底。", "dim": "C", "sign": 1},
+        {"text": "43. 我是一個生活作息非常有規律的人。", "dim": "C", "sign": 1},
+        {"text": "44. 做決策前，我一定會反覆思考後果。", "dim": "C", "sign": 1},
+        {"text": "45. 我總是嚴格遵守各種法規和社會規範。", "dim": "C", "sign": 1},
+        {"text": "46. 我經常把事情拖延到最後一刻才做。", "dim": "C", "sign": -1},
+        {"text": "47. 我的房間或辦公桌經常處於凌亂狀態。", "dim": "C", "sign": -1},
+        {"text": "48. 我做決定時比較衝動，常憑感覺走。", "dim": "C", "sign": -1},
+        {"text": "49. 我經常改變計畫，不喜歡死板的時程表。", "dim": "C", "sign": -1},
+        {"text": "50. 遇到枯燥繁瑣的事情，我很容易分心。", "dim": "C", "sign": -1},
+        {"text": "51. 我有時候答應別人的事會忘記做到。", "dim": "C", "sign": -1},
+        {"text": "52. 我覺得過度追求完美是浪費時間。", "dim": "C", "sign": -1},
+        {"text": "53. 我做事比較隨性，看心情決定進度。", "dim": "C", "sign": -1},
+        {"text": "54. 我不喜歡被條條框框的規則束縛。", "dim": "C", "sign": -1},
+
+        // --- 神經質 (N) ---
+        {"text": "55. 我經常莫名感到焦慮或沒來由的擔心。", "dim": "N", "sign": 1},
+        {"text": "56. 我的情緒起伏比較大，容易多愁善感。", "dim": "N", "sign": 1},
+        {"text": "57. 面對壓力時，我很容易覺得承受不住。", "dim": "N", "sign": 1},
+        {"text": "58. 只要別人眼神或口氣不對，我很容易覺得受挫。", "dim": "N", "sign": 1},
+        {"text": "59. 我經常反思自己的缺點並感到自卑。", "dim": "N", "sign": 1},
+        {"text": "60. 我很容易生氣或對周遭感到不耐煩。", "dim": "N", "sign": 1},
+        {"text": "61. 當遇到突發事件，我容易感到驚慌失措。", "dim": "N", "sign": 1},
+        {"text": "62. 悲傷或低落的情緒在我身上會持續很久。", "dim": "N", "sign": 1},
+        {"text": "63. 我非常在乎別人對我的評價和看法。", "dim": "N", "sign": 1},
+        {"text": "64. 我能快速地從挫折和打擊中恢復過來。", "dim": "N", "sign": -1},
+        {"text": "65. 我大部分時間都覺得心情很平靜安穩。", "dim": "N", "sign": -1},
+        {"text": "66. 面對緊急危機，我能保持冷靜清醒的頭腦。", "dim": "N", "sign": -1},
+        {"text": "67. 我很少會因為小事而抓狂或生氣。", "dim": "N", "sign": -1},
+        {"text": "68. 我對自己的未來和能力充滿自信。", "dim": "N", "sign": -1},
+        {"text": "69. 我不易受外界環境的風吹草動影響情緒。", "dim": "N", "sign": -1},
+        {"text": "70. 我是一個抗壓性很高的人。", "dim": "N", "sign": -1},
+        {"text": "71. 我很少感到無助或絕望。", "dim": "N", "sign": -1},
+        {"text": "72. 我不常有失眠或因為壓力導致的身體不適。", "dim": "N", "sign": -1},
+
+        // --- 開放性 (O) ---
+        {"text": "73. 我對各種抽象哲學和科學理論充滿好奇心。", "dim": "O", "sign": 1},
+        {"text": "74. 我非常享受欣賞音樂、畫作或大自然美景。", "dim": "O", "sign": 1},
+        {"text": "75. 我擁有豐富且天馬行空的想像力。", "dim": "O", "sign": 1},
+        {"text": "76. 我喜歡嘗試沒吃過的食物或去沒去過的地方旅遊。", "dim": "O", "sign": 1},
+        {"text": "77. 我樂於接觸和探討與我截然不同的思想與文化。", "dim": "O", "sign": 1},
+        {"text": "78. 我常常有些與眾不同的新奇點子。", "dim": "O", "sign": 1},
+        {"text": "79. 我容易沉浸在文藝作品或電影的情節中。", "dim": "O", "sign": 1},
+        {"text": "80. 我喜歡尋找事物背後的深刻意涵，不滿足於表面。", "dim": "O", "sign": 1},
+        {"text": "81. 相比於一成不變，我更熱愛多變的生活模式。", "dim": "O", "sign": 1},
+        {"text": "82. 我覺得過度探討抽象的理論非常無聊實用性低。", "dim": "O", "sign": -1},
+        {"text": "83. 我更喜歡遵循傳統和既有的習慣來做事。", "dim": "O", "sign": -1},
+        {"text": "84. 我很少花時間去思考不切實際的幻想。", "dim": "O", "sign": -1},
+        {"text": "85. 我對藝術品、當代展覽通常沒有太大興趣。", "dim": "O", "sign": -1},
+        {"text": "86. 相比於創新，我更信任時間檢驗過的傳統智慧。", "dim": "O", "sign": -1},
+        {"text": "87. 我不喜歡複雜燒腦的電影，更偏愛簡單娛樂的劇情。", "dim": "O", "sign": -1},
+        {"text": "88. 我更關注現實生活中的柴米油鹽，而非精神理想。", "dim": "O", "sign": -1},
+        {"text": "89. 學習未知的學科知識對我而言是件苦差事。", "dim": "O", "sign": -1},
+        {"text": "90. 我不喜歡打破常規的變革，安穩現狀最好。", "dim": "O", "sign": -1}
+    ];
+
+    let currentQ = 0;
+    // 初始化五大維度的原始累積總分
+    let scores = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+
+    function startTest() {
+        document.getElementById('start-page').classList.add('hidden');
+        document.getElementById('quiz-page').classList.remove('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        document.getElementById('current-idx').innerText = currentQ + 1;
+        document.getElementById('q-text').innerText = questions[currentQ].text;
+        window.scrollTo(0, 0); // 每次切換題自動置頂
+    }
+
+    function handleAnswer(rawScore) {
+        let q = questions[currentQ];
+        
+        // 核心計分：如果是反向題，分數等於 (6 - 用戶選分)，正向題則直接加原始分
+        let finalScore = (q.sign === -1) ? (6 - rawScore) : rawScore;
+        scores[q.dim] += finalScore;
+
+        currentQ++;
+        if (currentQ < questions.length) {
+            showQuestion();
+        } else {
+            calculateAndShowResult();
+        }
+    }
+
+    function calculateAndShowResult() {
+        document.getElementById('quiz-page').classList.add('hidden');
+        document.getElementById('result-page').classList.remove('hidden');
+        window.scrollTo(0, 0);
+
+        // 將總分換算成百分比，對齊原本 Python 的公式：round((score - 18) / 72 * 100)
+        let pctScores = {};
+        for (let dim in scores) {
+            pctScores[dim] = Math.round((scores[dim] - 18) / 72 * 100);
+        }
+
+        // 判定高低特質 (分數 >= 50 為高)
+        let high_o = pctScores["O"] >= 50;
+        let high_c = pctScores["C"] >= 50;
+        let high_e = pctScores["E"] >= 50;
+        let high_a = pctScores["A"] >= 50;
+        let high_n = pctScores["N"] >= 50;
+
+        let title = "";
+        let desc = "";
+        let strengths = [];
+        let weaknesses = [];
+
+        // 完美平移 Python 的 6 大主要人格判定邏輯
+        if (high_e && high_c && high_o) {
+            title = "👑 開創型領袖 (The Visionary Leader)";
+            desc = "你充滿活力與遠見，既有天馬行空的創新想法，又能腳踏實地地將計畫執行到位。你在團隊中通常扮演引領方向的角色，擅長激勵他人並帶領團隊開疆闢土。";
+            strengths = ["具備強大的目標導向與超強執行力", "樂於接受挑戰，創新思維活躍", "社交能力極佳，能輕鬆發揮影響力", "善於統籌大局與分配資源"];
+            weaknesses = ["有時對下屬或旁人要求過高，顯得有些強勢", "當進度不如預期時，容易產生焦慮與不耐煩", "可能因過於追求完美而給自己帶來極大壓力", "容易同時開太多戰線，導致體力透支"];
+        } 
+        else if (high_e && high_a && !high_c) {
+            title = "🌟 陽光社交家 (The Enthusiastic Connector)";
+            desc = "你是人群中的開心果與黏著劑！你極具親和力，熱愛與人互動，天生自帶吸引大眾的魅力。你更看重人與人之間的和諧情感，而非冰冷的死板規矩。";
+            strengths = ["同理心極強，擅長療癒與安慰他人", "溝通能力絕佳，能快速融入新環境並建立人脈", "樂觀開朗，能為團隊帶來積極正向的氛圍", "處事靈活彈性，適應能力強"];
+            weaknesses = ["做事較缺乏條理與規劃，容易丟三落四或拖延", "常常因為不好意思拒絕他人而承擔過多不屬於自己的責任", "容易受到他人情緒或負面評價的影響", "在處理繁瑣的數據與行政細節時容易分心"];
+        } 
+        else if (!high_e && high_c && !high_o) {
+            title = "🛡️ 沉穩守護者 (The Reliable Anchor)";
+            desc = "你是一個極其踏實、低調且無比靠譜的人。你不喜歡流於表面或花哨的事物，更傾向於在幕後默默耕耘。社會與團隊因為有你的自律和嚴謹，才能穩定運作。";
+            strengths = ["做事極其細心、負責任，承諾的事一定做到", "生活與工作井然有序，抗干擾能力強", "尊重傳統與既定規範，處事沉穩讓人安心", "擅長處理繁瑣、需要耐心的長線任務"];
+            weaknesses = ["思維相對保守，面對突如其來的重大變革容易感到抗拒", "不擅長表達內心真實情感，容易把壓力藏心底", "過度聚焦於細節，有時會陷入「見樹不見林」的盲點", "在社交場合顯得較為被動或嚴肅"];
+        } 
+        else if (!high_e && high_o && high_a) {
+            title = "🔮 靈魂思想家 (The Idealistic Thinker)";
+            desc = "你擁有深邃的內心世界與豐富的想像力。比起喧囂的社交場合，你更喜歡安靜地探索藝術、哲學或內心精神世界。你對人性的敏銳洞察讓你往往充滿智慧。";
+            strengths = ["具有深度思考能力與獨特的審美與創造力", "高度精神自省，不容易盲從社會主流價值觀", "對朋友極其忠誠，心思細膩體貼", "擅長文字創作、策略規劃或深度諮詢"];
+            weaknesses = ["容易陷入想得多、做得少的「思想巨人，行動矮子」困境", "過度敏感，容易被周遭的負面能量或衝突所灼傷", "有時顯得過於孤僻或不食人間煙火", "面對嚴酷、現實的激烈競爭時容易退縮"];
+        } 
+        else if (high_n && !high_e) {
+            title = "🔍 敏銳觀察家 (The Sensitive Analyst)";
+            desc = "你是一個情感極其細膩、警覺性很高的觀察者。你對環境的微小變化和潛在風險有著天生的雷達，這讓你能夠在危機發生前就做好最壞的打算與防範。";
+            strengths = ["危機意識極高，能提早發現計畫中的漏洞", "情感細膩，對文藝、心理學有極高的天賦", "做事謹慎，很少因為衝動而犯下大錯", "注重細節，交出來的成果通常非常嚴謹"];
+            weaknesses = ["容易過度焦慮、內耗，常為還沒發生的事情失眠", "自信心較不足，遇到挫折容易陷入自我懷疑", "在壓力環境下決策容易變得猶豫不決", "需要較長的獨處時間來修復受傷的情緒"];
+        } 
+        else {
+            title = "⚖️ 務實平衡者 (The Pragmatic Realist)";
+            desc = "你是一個非常均衡、務實的人。你不會極端地偏向某個特質，而是能根據當下的現實情況靈活調整自己。你既能參與社交，也能享受獨處；既仰望星空，也腳踏實地。";
+            strengths = ["情緒狀態相對穩定，處事客觀冷靜", "沒有明顯的性格短板，能夠勝任多種角色", "既講求效率，也能兼顧人際關係的平衡", "務實理性，不輕易被天馬行空的幻想誤導"];
+            weaknesses = ["有時在團隊中顯得特色不夠鮮明", "在需要極致創新或極端激進的環境中可能顯得保守", "傾向於打安全牌，可能會因此錯失一些高風險高回報的機會", "容易流於安穩的舒適圈而不願輕易打破現狀"];
+        }
+
+        // 把結果塞進網頁
+        document.getElementById('personality-title').innerText = title;
+        document.getElementById('description-text').innerText = desc;
+
+        let sHtml = "";
+        strengths.forEach(s => sHtml += `<p>✅ ${s}</p>`);
+        document.getElementById('strengths-text').innerHTML = sHtml;
+
+        let wHtml = "";
+        weaknesses.forEach(w => wHtml += `<p>❌ ${w}</p>`);
+        document.getElementById('weaknesses-text').innerHTML = wHtml;
+    }
+</script>
+</body>
+</html>
