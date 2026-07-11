@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CH">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>90題深度性格特質測試</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #f4f4f9; color: #333; padding: 20px; text-align: center; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 550px; margin: 40px auto; }
+        .progress { color: #6c5ce7; font-weight: bold; margin-bottom: 20px; }
+        .question-text { font-size: 18px; line-height: 1.5; margin-bottom: 30px; min-height: 60px; text-align: left; }
+        button { background: #6c5ce7; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 8px 0; width: 100%; transition: 0.2s; }
+        button:hover { background: #5b4cc4; }
+        .hidden { display: none; }
+        #result-text { text-align: left; line-height: 1.8; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <!-- 歡迎介面 -->
+    <div id="start-page">
+        <h2>🔮 90題深度性格特質測試</h2>
+        <p style="color:#666; line-height:1.6;">這是一份基於科學大五人格（Big Five）模型的深度測評。透過90道核心題，全面解鎖你的外向性、神經質、親和性、謹慎度與開放性維度。</p>
+        <button onclick="startTest()">開始深度測評</button>
+    </div>
+
+    <!-- 測驗進行介面（一題題跳轉，體驗極佳） -->
+    <div id="quiz-page" class="hidden">
+        <div class="progress">題目：<span id="current-idx">1</span> / <span id="total-idx">90</span></div>
+        <div class="question-text" id="q-text">加載中...</div>
+        <button onclick="handleAnswer(2)">非常同意</button>
+        <button onclick="handleAnswer(1)">比較同意</button>
+        <button onclick="handleAnswer(0)">一般 / 中立</button>
+        <button onclick="handleAnswer(-1)">不太同意</button>
+        <button onclick="handleAnswer(-2)">非常不同意</button>
+    </div>
+
+    <!-- 結果導向介面 -->
+    <div id="result-page" class="hidden">
+        <h2>✨ 你的性格核心解碼</h2>
+        <div id="result-text"></div>
+        <div style="margin-top:30px; background:#f9f9fb; padding:15px; border-radius:8px; font-size:14px; color:#555;">
+            <b>💡 想獲取專屬【3000字個人天賦與2026搞錢方向深度報告】？</b><br>
+            請立即返回小紅書私信我，發送關鍵字：<b>「領取報告」</b>，系統將人工為您發送完整版！
+        </div>
+    </div>
+</div>
+
+<script>
+    // 💡 填題區：把你 python 裡的題目按照下面格式複製進來，支持全部 90 題
+    // dim 代表維度（E/N/A/C/O），sign 代表正向計分(1)或反向計分(-1)
+    const questions = [
+        { text: "1. 我在聚會中總能輕鬆主動與陌生人攀談。", dim: "E", sign: 1 },
+        { text: "2. 我喜歡成為大家注目的焦點。", dim: "E", sign: 1 },
+        { text: "3. 我通常充滿活力，說話速度較快。", dim: "E", sign: 1 },
+        { text: "4. 我喜歡熱鬧、刺激的社交場合。", dim: "E", sign: 1 },
+        { text: "5. 我擅長帶動團體氣氛。", dim: "E", sign: 1 },
+        { text: "11. 我傾向於保持低調，不愛出風頭。", dim: "E", sign: -1 },
+        { text: "12. 獨處能讓我更有效地恢復精力。", dim: "E", sign: -1 }
+        // 👈 在這裡可以一直貼到第 90 題，格式保持一致即可
+    ];
+
+    let currentQ = 0;
+    // 初始化五大維度分數
+    let scores = { E: 0, N: 0, A: 0, C: 0, O: 0 };
+
+    document.getElementById('total-idx').innerText = questions.length;
+
+    function startTest() {
+        document.getElementById('start-page').classList.add('hidden');
+        document.getElementById('quiz-page').classList.remove('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        document.getElementById('current-idx').innerText = currentQ + 1;
+        document.getElementById('q-text').innerText = questions[currentQ].text;
+    }
+
+    function handleAnswer(userValue) {
+        let q = questions[currentQ];
+        // 計算分數：用戶選擇的分數 * 正反向係數
+        scores[q.dim] += userValue * q.sign;
+
+        currentQ++;
+        if (currentQ < questions.length) {
+            showQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quiz-page').classList.add('hidden');
+        document.getElementById('result-page').classList.remove('hidden');
+
+        // 簡化版結果判定（可根據你的 Streamlit 邏輯精細化修改）
+        let htmlResult = `<p><b>📊 測評維度初步分析：</b></p>`;
+        htmlResult += `<p>• <b>外向性能量 (E)：</b> ${scores.E >= 0 ? '高（主動、社交型）' : '低（深思、內斂型）'}</p>`;
+        
+        document.getElementById('result-text').innerHTML = htmlResult;
+    }
+</script>
+</body>
+</html>
